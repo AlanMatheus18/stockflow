@@ -1,10 +1,16 @@
 import React from 'react'
 import Header from '../components/Header'
+
 const Movements = () => {
   return (
-   <>
-            <Header />
-        </>
+    <>
+      <div>
+        <Header />
+        <div>
+          
+        </div>
+      </div>
+    </>
   )
 }
 

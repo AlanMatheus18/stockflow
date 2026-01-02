@@ -1,74 +1,103 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from "react-router-dom";
+import { useAuth } from '../AuthContext';
 
 const RegisterForm = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signUp } = useAuth();
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      alert("As senhas não coincidem!");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { error } = await signUp(email, password);
+    
+    if (error) {
+      alert(error.message);
+      setIsSubmitting(false);
+    } else {
+      alert("Sucesso! Verifique seu e-mail para confirmar o cadastro.");
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-xl border border-gray-50">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">Crie sua conta</h2>
-          <p className="mt-2 text-sm text-gray-500">Comece sua jornada conosco hoje.</p>
+    /* Fundo Dark combinando com o Dashboard */
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-[#1f2329] to-[#2b3036] p-4">
+      
+      {/* Card de Cadastro Responsivo */}
+      <div className="w-full max-w-[500px] p-8 space-y-6 bg-zinc-900/50 border border-zinc-700/50 rounded-2xl shadow-2xl backdrop-blur-sm">
+        
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-extrabold text-white">Crie sua conta</h2>
+          <p className="text-sm text-zinc-400">Comece a gerenciar seu estoque de forma profissional.</p>
         </div>
         
-        <form className="space-y-4">
-          {/* Campo Nome */}
-          <div>
-            <label className="block mb-1 text-sm font-semibold text-gray-700">Nome Completo</label>
-            <input 
-              type="text" 
-              placeholder="João Silva"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
-            />
-          </div>
-
-          {/* Campo E-mail */}
-          <div>
-            <label className="block mb-1 text-sm font-semibold text-gray-700">E-mail</label>
+        <form className="space-y-5" onSubmit={handleRegister}>
+          {/* E-mail */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-zinc-300 ml-1">E-mail Profissional</label>
             <input 
               type="email" 
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="exemplo@email.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+              className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 text-white rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition-all placeholder:text-zinc-600"
             />
           </div>
 
-          {/* Grid para Senhas (lado a lado em telas maiores) */}
+          {/* Grid de Senhas Responsivo: 1 col no mobile, 2 col no tablet/desktop */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block mb-1 text-sm font-semibold text-gray-700">Senha</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-300 ml-1">Senha</label>
               <input 
                 type="password" 
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 text-white rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition-all placeholder:text-zinc-600"
               />
             </div>
-            <div>
-              <label className="block mb-1 text-sm font-semibold text-gray-700">Confirmar Senha</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-300 ml-1">Confirmar Senha</label>
               <input 
                 type="password" 
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+                className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 text-white rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition-all placeholder:text-zinc-600"
               />
             </div>
-          </div>
-
-          <div className="flex items-center">
-            <input type="checkbox" className="w-4 h-4 text-amber-500 border-gray-300 rounded focus:ring-amber-500" />
-            <label className="ml-2 text-xs text-gray-600">
-              Eu aceito os <a to="Form" className="text-amber-600 underline">Termos e Condições</a>
-            </label>
           </div>
 
           <button 
             type="submit" 
-            className="w-full py-3 mt-2 font-bold text-white bg-amber-500 rounded-lg hover:bg-amber-600 active:scale-[0.98] transition-all shadow-lg shadow-amber-200"
+            disabled={isSubmitting}
+            className="w-full py-3 mt-2 font-bold text-zinc-900 bg-amber-500 rounded-xl hover:bg-amber-400 active:scale-[0.98] transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cadastrar
+            {isSubmitting ? "Processando..." : "Criar Minha Conta"}
           </button>
         </form>
 
-        <p className="text-sm text-center text-gray-600">
-          Já tem uma conta? <Link to="/" className="font-bold text-amber-600 hover:text-amber-700 hover:underline">Faça login</Link>
-        </p>
+        <div className="pt-2 text-center">
+          <p className="text-sm text-zinc-500">
+            Já tem uma conta?{" "}
+            <Link to="/" className="font-bold text-amber-500 hover:text-amber-400 hover:underline underline-offset-4">
+              Faça login
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-
+import { AuthProvider } from '../AuthContext';
 // Pages
 import Home from '../pages/Home'
 import Login from '../pages/Login'
@@ -7,8 +7,16 @@ import Products from '../pages/Products'
 import Movements from '../pages/Movements'
 import Reports from '../pages/Reports'
 import FormCadastro from "../components/FormCadastro";
+
+
+
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/" />;
+};
 export default function AppRoutes() {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
@@ -17,7 +25,13 @@ export default function AppRoutes() {
         <Route path="/products" element={<Products />} />
         <Route path="/movements" element={<Movements />} />
         <Route path="/reports" element={<Reports />} />
+
+        {/* Rotas Protegidas */}
+          <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+          <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
+          {/* ... outras rotas */}
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   )
 }
