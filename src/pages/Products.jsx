@@ -6,10 +6,18 @@ import { ProductTable } from '../components/ProductTable'
 const Products = () => {
     const tableRef = useRef()
 
+    // Função para quando um produto é adicionado/editado/excluído
     const handleProductAdded = () => {
-        // Se a tabela tiver uma função fetchProducts exposta via forwardRef, ela atualiza aqui
         if (tableRef.current && tableRef.current.fetchProducts) {
             tableRef.current.fetchProducts()
+        }
+    }
+
+    // NOVA FUNÇÃO: Recebe o texto da busca e avisa a tabela
+    const handleSearch = (searchTerm) => {
+        if (tableRef.current && tableRef.current.fetchProducts) {
+            // Chamamos a função da tabela passando o termo de busca
+            tableRef.current.fetchProducts(searchTerm)
         }
     }
 
@@ -18,8 +26,11 @@ const Products = () => {
             <Header />
             
             <div className='p-6 flex flex-col items-center'>
-                {/* Unificamos tudo aqui: busca + botão de adicionar */}
-                <SearchProduct onProductAdded={handleProductAdded} />
+                {/* Adicionamos a prop onSearch aqui */}
+                <SearchProduct 
+                    onProductAdded={handleProductAdded} 
+                    onSearch={handleSearch} 
+                />
             </div>
 
             <div className="p-4 md:p-10 pt-0">

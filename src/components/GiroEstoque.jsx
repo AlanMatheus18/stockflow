@@ -18,12 +18,12 @@ export function GiroEstoque() {
         const estoqueAtual = produtos?.reduce((acc, item) => acc + item.quantity, 0) || 0;
 
         const { data: movimentacoes } = await supabase
-          .from("movements")
-          .select("quantity")
-          .eq("type", "out");
+  .from("movements")
+  .select("quantity")
+  .eq("type", "out");
 
-        const totalSaidas = movimentacoes?.reduce((acc, item) => acc + item.quantity, 0) || 0;
-
+// Soma todas as quantidades da coluna quantity onde o tipo é 'out'
+const totalSaidas = movimentacoes?.reduce((acc, item) => acc + (item.quantity || 0), 0) || 0;
         if (estoqueAtual + totalSaidas > 0) {
           const calculo = (totalSaidas / (estoqueAtual + totalSaidas)) * 100;
           setPercent(Math.round(calculo));
