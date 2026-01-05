@@ -11,15 +11,25 @@ export function UltimasMovimentacoes() {
       try {
         setLoading(true);
         const { data, error } = await supabase
-          .from("movements") 
-          .select("id, type, sku, quantity, created_at")
+          .from("movements")
+          .select(`
+    id, 
+    type, 
+    quantity, 
+    created_at,
+    products!movements_product_id_fkey ( name )
+  `) // Adicionamos !movements_product_id_fkey para tirar a ambiguidade
           .order("created_at", { ascending: false })
           .limit(5);
+        if (error) {
+          console.error("ERRO DO SUPABASE:", error.message);
+          console.error("DETALHES:", error.details);
+        }
 
-        if (error) throw error;
+        console.log("DADOS RECEBIDOS:", data); // Verifique isso no F12 do navegador
         setMovimentacoes(data || []);
       } catch (error) {
-        console.error("Erro ao carregar movimentações:", error.message);
+        console.error("Erro ao carregar:", error.message);
       } finally {
         setLoading(false);
       }
@@ -41,26 +51,25 @@ export function UltimasMovimentacoes() {
           <ul className="text-sm space-y-3">
             {movimentacoes.map((mov) => {
               const isEntrada = mov.type === 'in' || mov.type === 'ENTRADA';
-              
+
               return (
-                <li 
-                  key={mov.id} 
+                <li
+                  key={mov.id}
                   className="flex justify-between items-center border-b border-zinc-800/50 pb-2 last:border-0 gap-2"
                 >
                   {/* Badge Responsivo */}
-                  <span className={`font-bold text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded min-w-[60px] text-center shrink-0 ${
-                    isEntrada 
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
-                      : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                  }`}>
+                  <span className={`font-bold text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded min-w-[60px] text-center shrink-0 ${isEntrada
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    }`}>
                     {isEntrada ? "ENTRADA" : "SAÍDA"}
                   </span>
-                  
+
                   {/* SKU com ajuste de overflow */}
-                  <span className="text-zinc-300 flex-1 font-mono text-xs truncate">
-                    {mov.sku}
+                  <span className="text-zinc-300 flex-1 font-medium text-xs truncate">
+                    {mov.products?.name || "Produto não identificado"}
                   </span>
-                  
+
                   {/* Quantidade */}
                   <span className="text-zinc-400 font-medium text-xs shrink-0">
                     {mov.quantity} un

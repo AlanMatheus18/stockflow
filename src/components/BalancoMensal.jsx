@@ -13,24 +13,27 @@ export function BalancoMensal() {
     async function fetchFinanceiro() {
       try {
         setLoading(true);
-        
-        // 1. Buscamos as movimentações de saída
-        // IMPORTANTE: Verifique se o nome da coluna no banco é 'unit_price' ou apenas 'price'
+
+        // Buscamos a quantidade e o preço de venda através do relacionamento
+        // Note o uso de !movements_product_id_fkey para evitar a ambiguidade
         const { data, error } = await supabase
           .from("movements")
-          .select("quantity, unit_price") 
+          .select(`
+            quantity,
+            products!movements_product_id_fkey ( sale_price )
+          `)
           .eq("type", "out");
 
         if (error) throw error;
 
         if (data) {
-          // 2. Cálculo garantindo que valores nulos não quebrem a conta
+          // Cálculo: Quantidade do movimento * Preço de venda do produto
           const soma = data.reduce((acc, item) => {
             const qtd = item.quantity || 0;
-            const preco = item.unit_price || 0;
+            const preco = item.products?.sale_price || 0;
             return acc + (qtd * preco);
           }, 0);
-          
+
           setTotal(soma);
         }
       } catch (error) {
@@ -41,12 +44,12 @@ export function BalancoMensal() {
     }
     fetchFinanceiro();
   }, []);
-
+  
   return (
     <div className="w-full">
       <Card title="Balanço Mensal">
         <div className="flex flex-row items-center justify-between w-full h-full pb-2 gap-4">
-          
+
           {/* Lado Esquerdo: Valor Financeiro */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <span className="text-emerald-400 text-lg sm:text-xl font-bold">↑</span>
@@ -78,7 +81,7 @@ export function BalancoMensal() {
               <line x1="0" y1="50" x2="100" y2="50" stroke="#3f3f46" strokeWidth="1" />
               <polyline
                 fill="none"
-                stroke="#10b981" 
+                stroke="#10b981"
                 strokeWidth="4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
